@@ -1,6 +1,10 @@
 # AdversarialQuestionGeneration
 Generate questions on which a given QA system will fail
 
+## Question Generation
+
+https://github.com/microsoft/unilm/issues/23
+
 
 ## Named Entity Recognition
 
