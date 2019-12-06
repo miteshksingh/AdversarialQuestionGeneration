@@ -3,8 +3,34 @@ Generate questions on which a given QA system will fail
 
 ## Question Generation
 
+0. Do not install nvidia/apex module
+
+1. Do not use -fp16 -amp flags in the python decode_seq2seq command options
 https://github.com/microsoft/unilm/issues/23
 
+2. 
+Filename: code/unilm/src/run_finetuned_custom.sh
+-python2 qg/eval_on_unilm_tokenized_ref.py --out_file qg/output/qg.test.output.txt
+-python2 qg/eval.py --out_file qg/output/qg.test.output.txt
+
+3.
+Filename: code/unilm/src/pytorch_pretrained_bert/__init__.py
+-from .tokenization import BertTokenizer, BasicTokenizer, WordpieceTokenizer
++from .tokenization import BertTokenizer, BasicTokenizer, WordpieceTokenizer, WhitespaceTokenizer
+
+python setup.py install --user
+
+4.
+Filename: code/unilm/src/biunilm/seq2seq_decoder.py
+-model_recover = torch.load(model_recover_path)
++model_recover = torch.load(model_recover_path, map_location=torch.device('cpu'))
+
+
+Running Steps:
+
+1. conda activate unilm
+2. cd code/unilm/src
+3. ./run_finetuned_custom.sh
 
 ## Named Entity Recognition
 
