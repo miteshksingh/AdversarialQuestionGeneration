@@ -39,17 +39,21 @@ for i, d in enumerate(data["data"]):
             id = qas["id"]
             question = qas["question"]
 
-            prediction = predictor.predict(passage = context, question = question)
+            try:
+                prediction = predictor.predict(passage = context, question = question)
 
-            """
-            Prediction: dict_keys([
-                'passage_question_attention', 'span_start_logits', 'span_start_probs', 
-                'span_end_logits', 'span_end_probs', 'best_span', 
-                'best_span_str', 'question_tokens', 'passage_tokens'
-            ])
-            """
+                """
+                Prediction: dict_keys([
+                    'passage_question_attention', 'span_start_logits', 'span_start_probs', 
+                    'span_end_logits', 'span_end_probs', 'best_span', 
+                    'best_span_str', 'question_tokens', 'passage_tokens'
+                ])
+                """
 
-            ans[id] = prediction['best_span_str']
+                ans[id] = prediction['best_span_str']
+            except RuntimeError:
+                ans[id] = ""
+                pass
 
     t1 = time.time()
 
