@@ -13,17 +13,20 @@ from torch.utils.data import Dataset, DataLoader
 
 class QuestionDataset(Dataset):
 
-  def __init__(self, json_file):
+  def __init__(self, json_file, val=False):
     with open(json_file) as f: data = json.load(f)
     
-    """
-    Sampling equal +ve and -ve training examples
-    """
-    positive_samples = [s for s in data if s["label"] == 1]
-    negative_samples = [s for s in data if s["label"] == 0]
-    
-    random.shuffle(positive_samples)
-    samples = positive_samples[:len(negative_samples)] + negative_samples
+    if not val:
+      """
+      Sampling equal +ve and -ve training examples
+      """
+      positive_samples = [s for s in data if s["label"] == 1]
+      negative_samples = [s for s in data if s["label"] == 0]
+      
+      random.shuffle(positive_samples)
+      samples = positive_samples[:len(negative_samples)] + negative_samples
+    else:
+      samples = data
 
     """
     Extracting Question and Label from samples
@@ -123,10 +126,12 @@ def main():
   np.random.seed(RANDOM_SEED)
   random.seed(RANDOM_SEED)
 
-  train_c = QuestionDataset("labelled-predictions-dev-v1.1.json")
-  print("Total Questions: {}".format(train_c.__len__()))
+  train_c = QuestionDataset("../QA/labelled-predictions-dev-v1.1.json")
+  val_c = QuestionDataset("../QA/labelled-predictions-generated_ques_3670.json", val = True)
+  print("Train Size: {} Val Size: {}".format(train_c.__len__(), val_c.__len__()))
 
   train_dataloader = DataLoader(train_c, batch_size=BATCH_SIZE, shuffle=True)
+  val_dataloader = DataLoader(val_c, batch_size=BATCH_SIZE, shuffle=False)
 
   model = Classifier()
   criterion = nn.CrossEntropyLoss()
@@ -136,10 +141,12 @@ def main():
 
     t0 = time.time()
 
+    """
+    Training Model.
+    """
     train_epoch_loss = 0
     all_y_pred = []
     all_y_true = []
-
     for _, batch in enumerate(train_dataloader):
       inputs, labels = batch
       M = labels.shape[0]
@@ -164,12 +171,25 @@ def main():
       all_y_pred += model.predict(y_pred).tolist()
       all_y_true += labels.tolist()
 
+    train_acc = accuracy_score(all_y_pred, all_y_true)
+
+    """
+    Predicting output on validation data.
+    """
+    all_y_pred = []
+    all_y_true = []
+    for _, batch in enumerate(val_dataloader):
+      inputs, labels = batch
+
+      with torch.no_grad(): all_y_pred += model.predict(model.forward(inputs)).tolist()
+      all_y_true += labels.tolist()
+
+    val_acc = accuracy_score(all_y_pred, all_y_true)
+
     t1 = time.time()
 
-    acc = accuracy_score(all_y_pred, all_y_true)
-
-    print("Epoch: {} Avg. Epoch Loss: {} Train Acc: {} Time taken: {} secs".format(
-        epoch+1, train_epoch_loss/train_c.__len__(), acc, round((t1-t0))))
+    print("Epoch: {} Avg. Epoch Loss: {} Train Acc: {} Val Acc: {} Time taken: {} secs".format(
+        epoch+1, train_epoch_loss/train_c.__len__(), train_acc, val_acc, round((t1-t0))))
 
 if __name__ == '__main__':
   main()
