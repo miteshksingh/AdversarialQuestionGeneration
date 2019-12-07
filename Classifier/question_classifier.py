@@ -13,10 +13,10 @@ from torch.utils.data import Dataset, DataLoader
 
 class QuestionDataset(Dataset):
 
-  def __init__(self, json_file, val=False):
+  def __init__(self, json_file, balance_classes=True):
     with open(json_file) as f: data = json.load(f)
     
-    if not val:
+    if balance_classes:
       """
       Sampling equal +ve and -ve training examples
       """
@@ -88,7 +88,7 @@ class Classifier(nn.Module):
       # Our network consists of 3 layers. 1 input, 1 hidden and 1 output layer
       # This applies Linear transformation to input data. 
       self.fc1 = nn.Linear(4096, 512)
-      
+
       # This applies linear transformation to produce output data
       self.fc2 = nn.Linear(512, 2)
         
@@ -96,7 +96,7 @@ class Classifier(nn.Module):
     def forward(self, x):
       # Output of the first layer
       x = self.fc1(x)
-      
+
       # Activation function is Relu. Feel free to experiment with this
       x = torch.relu(x)
       
@@ -126,8 +126,8 @@ def main():
   np.random.seed(RANDOM_SEED)
   random.seed(RANDOM_SEED)
 
-  train_c = QuestionDataset("../QA/labelled-predictions-dev-v1.1.json")
-  val_c = QuestionDataset("../QA/labelled-predictions-generated_ques_3670.json", val = True)
+  train_c = QuestionDataset("../QA/labelled-predictions-train-v1.1.json")
+  val_c = QuestionDataset("../QA/labelled-predictions-dev-v1.1.json")
   print("Train Size: {} Val Size: {}".format(train_c.__len__(), val_c.__len__()))
 
   train_dataloader = DataLoader(train_c, batch_size=BATCH_SIZE, shuffle=True)
