@@ -53,7 +53,6 @@ for i, d in enumerate(data["data"]):
 
                 ans[id] = prediction['best_span_str']
             except RuntimeError:
-                ans[id] = ""
                 pass
 
     t1 = time.time()
