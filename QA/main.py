@@ -16,7 +16,8 @@ args = parser.parse_args()
 input_json = args.input_json
 ans_json = "predictions-" + basename(input_json)
 
-cuda_device = 2
+if torch.cuda.is_available(): cuda_device = 2
+else: cuda_device = -1
 
 print("Loading BiDAF Model")
 predictor = Predictor.from_path("./bidaf-elmo-model-2018.11.30-charpad.tar.gz", cuda_device = cuda_device)
