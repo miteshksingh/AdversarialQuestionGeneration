@@ -4,3 +4,6 @@ Contains NER related files
 
 --input
 --output
+
+2. Change script run_finetuned_custom.sh to have the updated input file
+   ./run_finetuned_custom.sh
