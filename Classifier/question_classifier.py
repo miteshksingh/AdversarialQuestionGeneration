@@ -66,21 +66,20 @@ class Infersent:
 
   def __init__(self):
 
-    self.V = 2
-    self.MODEL_PATH = 'encoder/infersent%s.pkl' % self.V
-    self.params_model = {
+    V = 2
+    MODEL_PATH = 'encoder/infersent%s.pkl' % V
+    params_model = {
       'bsize': 64, 
       'word_emb_dim': 300, 
       'enc_lstm_dim': 2048,
       'pool_type': 'max', 
       'dpout_model': 0.0, 
-      'version': self.V
+      'version': V
     }
 
-    self.infersent = InferSent(self.params_model)
-    self.infersent.load_state_dict(torch.load(self.MODEL_PATH))
-    self.W2V_PATH = 'fastText/crawl-300d-2M.vec'
-    self.infersent.set_w2v_path(self.W2V_PATH)
+    self.infersent = InferSent(params_model)
+    self.infersent.load_state_dict(torch.load(MODEL_PATH))
+    self.infersent.set_w2v_path('fastText/crawl-300d-2M.vec')
 
   def get(self, sentences):
     self.infersent.build_vocab(sentences, tokenize=True)
@@ -127,10 +126,24 @@ class Classifier(nn.Module):
       # Pick the class with maximum weight
       return torch.argmax(pred, dim=1)
 
+# Copied from: https://github.com/svishwa/crowdcount-mcnn/blob/master/src/network.py
+
+def weights_normal_init(model, dev=0.01):
+  if isinstance(model, list):
+    for m in model:
+        weights_normal_init(m, dev)
+  else:
+    for m in model.modules():
+      if isinstance(m, nn.Conv2d):                
+        m.weight.data.normal_(0.0, dev)
+        if m.bias is not None:
+          m.bias.data.fill_(0.0)
+      elif isinstance(m, nn.Linear):
+        m.weight.data.normal_(0.0, dev)
 
 def main():
   BATCH_SIZE = 256
-  LR = 0.01
+  LR = 0.001
   MAX_EPOCHS = 100
   RANDOM_SEED = 600
 
@@ -147,7 +160,10 @@ def main():
   val_dataloader = DataLoader(val_c, batch_size=BATCH_SIZE, shuffle=False)
 
   model = Classifier()
+  weights_normal_init(model, dev=0.001)
+
   criterion = nn.CrossEntropyLoss()
+  
   optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
   for epoch in range(MAX_EPOCHS):
