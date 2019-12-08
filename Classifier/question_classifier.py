@@ -1,4 +1,5 @@
 import json
+import matplotlib.pyplot as plt
 import nltk
 import numpy as np
 import random
@@ -8,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from models import InferSent
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from torch.utils.data import Dataset, DataLoader
 
 class QuestionDataset(Dataset):
@@ -142,7 +143,7 @@ def weights_normal_init(model, dev=0.01):
         m.weight.data.normal_(0.0, dev)
 
 def main():
-  BATCH_SIZE = 256
+  BATCH_SIZE = 1024
   LR = 0.001
   MAX_EPOCHS = 100
   RANDOM_SEED = 600
@@ -152,9 +153,13 @@ def main():
   np.random.seed(RANDOM_SEED)
   random.seed(RANDOM_SEED)
 
-  train_c = QuestionDataset("../QA/labelled-predictions-bidaf-squad-train-v1.1.json")
-  val_c = QuestionDataset("../QA/labelled-predictions-bidaf-squad-dev-v1.1.json")
-  print("Train Size: {} Val Size: {}".format(train_c.__len__(), val_c.__len__()))
+  t0 = time.time()
+  train_c = QuestionDataset("../QA/labelled-predictions-Stanford-Attentive-Reader-SQuAD-v1.1-train-multitask.json")
+  val_c = QuestionDataset("../QA/labelled-predictions-Stanford-Attentive-Reader-SQuAD-v1.1-dev-multitask.json", balance_classes=False)
+  t1 = time.time()
+
+  print("Data loaded. Train Size: {} Val Size: {} Time taken: {} secs".format(
+    train_c.__len__(), val_c.__len__(), round(t1-t0)))
 
   train_dataloader = DataLoader(train_c, batch_size=BATCH_SIZE, shuffle=True)
   val_dataloader = DataLoader(val_c, batch_size=BATCH_SIZE, shuffle=False)
@@ -166,9 +171,12 @@ def main():
   
   optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
+  stats = []
+
   for epoch in range(MAX_EPOCHS):
 
     t0 = time.time()
+    stat = {}
 
     """
     Training Model.
@@ -202,7 +210,8 @@ def main():
       all_y_pred += model.predict(y_pred).tolist()
       all_y_true += labels.tolist()
 
-    train_acc = accuracy_score(all_y_pred, all_y_true)
+    stat["loss"] = train_epoch_loss/train_c.__len__()
+    stat["train_acc"] = accuracy_score(all_y_pred, all_y_true)
 
     """
     Predicting output on validation data.
@@ -216,12 +225,35 @@ def main():
       with torch.no_grad(): all_y_pred += model.predict(model.forward(inputs)).tolist()
       all_y_true += labels.tolist()
 
-    val_acc = accuracy_score(all_y_pred, all_y_true)
+    stat["val_acc"] = accuracy_score(all_y_true, all_y_pred)
+    stat["confusion_matrix"] = confusion_matrix(all_y_true, all_y_pred).tolist()
+
+    stats.append(stat)
 
     t1 = time.time()
 
     print("Epoch: {} Avg. Epoch Loss: {} Train Acc: {} Val Acc: {} Time taken: {} secs".format(
-        epoch+1, train_epoch_loss/train_c.__len__(), train_acc, val_acc, round((t1-t0))))
+        epoch+1, stat["loss"], stat["train_acc"], stat["val_acc"], round((t1-t0))))
+
+  with open("stats-Stanford-Attentive-Reader-SQuAD.json", 'w') as outfile: json.dump(stats, outfile, indent=4, sort_keys=True)
+
+  # Plotting Epoch Loss
+  plt.plot([e["loss"] for e in stats])
+  plt.xlabel("Epochs")
+  plt.ylabel("Epoch Loss")
+  plt.show()
+
+  # Plotting Validation Accuracy
+  plt.plot([e["val_acc"] for e in stats])
+  plt.xlabel("Epochs")
+  plt.ylabel("Validation Accuracy")
+  plt.show()
+
+  # Plotting Training Accuracy
+  plt.plot([e["train_acc"] for e in stats])
+  plt.xlabel("Epochs")
+  plt.ylabel("Training Accuracy")
+  plt.show()
 
 if __name__ == '__main__':
   main()
