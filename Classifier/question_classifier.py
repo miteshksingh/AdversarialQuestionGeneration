@@ -18,7 +18,7 @@ class QuestionDataset(Dataset):
     
     if balance_classes:
       """
-      Sampling equal +ve and -ve training examples
+      Sampling equal +ve and -ve training examples.
       """
       positive_samples = [s for s in data if s["label"] == 1]
       negative_samples = [s for s in data if s["label"] == 0]
@@ -35,21 +35,29 @@ class QuestionDataset(Dataset):
     self.labels = []
 
     questions = []
+    answers = []
     for entry in samples:
       questions.append(entry["question"])
+      answers.append(entry["answers"][0]["text"])
+
       self.labels.append(entry["label"])
 
     """
     Getting Embedding for each question
     """
     embedding_model = Infersent()
-    self.question_embeddings = embedding_model.get(questions)
+    embeddings = embedding_model.get(questions + answers)
+
+    self.question_embeddings = embeddings[:self.N]
+    self.answer_embeddings = embeddings[self.N:]
 
   def __len__(self):
     return self.N
 
   def __getitem__(self, idx):
-    X = torch.from_numpy(self.question_embeddings[idx]).type(torch.FloatTensor)
+    X = torch.from_numpy(
+      self.question_embeddings[idx] * self.answer_embeddings[idx]
+    ).type(torch.FloatTensor)
     Y = torch.tensor(self.labels[idx])
 
     return X, Y
@@ -86,14 +94,19 @@ class Classifier(nn.Module):
       super(Classifier,self).__init__()
 
       # Our network consists of 3 layers. 1 input, 1 hidden and 1 output layer
+
+      self.d1 = nn.Dropout(0.5)
+
       # This applies Linear transformation to input data. 
-      self.fc1 = nn.Linear(4096, 512)
+      self.fc1 = nn.Linear(4096, 16)
 
       # This applies linear transformation to produce output data
-      self.fc2 = nn.Linear(512, 2)
+      self.fc2 = nn.Linear(16, 2)
         
     # This must be implemented
     def forward(self, x):
+      x = self.d1(x)
+
       # Output of the first layer
       x = self.fc1(x)
 
@@ -126,8 +139,8 @@ def main():
   np.random.seed(RANDOM_SEED)
   random.seed(RANDOM_SEED)
 
-  train_c = QuestionDataset("../QA/labelled-predictions-train-v1.1.json")
-  val_c = QuestionDataset("../QA/labelled-predictions-dev-v1.1.json")
+  train_c = QuestionDataset("../QA/labelled-predictions-bidaf-squad-train-v1.1.json")
+  val_c = QuestionDataset("../QA/labelled-predictions-bidaf-squad-dev-v1.1.json")
   print("Train Size: {} Val Size: {}".format(train_c.__len__(), val_c.__len__()))
 
   train_dataloader = DataLoader(train_c, batch_size=BATCH_SIZE, shuffle=True)
@@ -147,6 +160,8 @@ def main():
     train_epoch_loss = 0
     all_y_pred = []
     all_y_true = []
+
+    model.train()
     for _, batch in enumerate(train_dataloader):
       inputs, labels = batch
       M = labels.shape[0]
@@ -178,6 +193,7 @@ def main():
     """
     all_y_pred = []
     all_y_true = []
+    model.eval()
     for _, batch in enumerate(val_dataloader):
       inputs, labels = batch
 
