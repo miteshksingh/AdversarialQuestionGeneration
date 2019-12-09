@@ -269,7 +269,7 @@ def test():
   model.load_state_dict(torch.load(model_name))
   model.eval()
 
-  test_c = QuestionDataset("../QA/labelled-predictions-validation_50.json")
+  test_c = QuestionDataset("../QA/labelled-predictions-generated_ques_3670.json")
   test_dataloader = DataLoader(test_c, batch_size=1024, shuffle=False)
 
   predicted_label = []
@@ -277,12 +277,12 @@ def test():
     inputs, _ = batch
     with torch.no_grad(): predicted_label += model.predict(model.forward(inputs)).tolist()
 
-  with open("classifier-labelled-predictions-validation_50.json", 'w') as outfile: 
+  with open("classifier-labelled-predictions-generated_ques_3670.json", 'w') as outfile: 
     json.dump(predicted_label, outfile, indent=4)
 
 def main():
-  train()
-  # test()
+  # train()
+  test()
 
 if __name__ == '__main__':
   main()
