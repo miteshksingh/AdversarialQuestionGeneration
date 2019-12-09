@@ -131,6 +131,7 @@ dmypy.json
 Classifier/GloVe
 Classifier/encoder
 Classifier/fastText
+Classifier/save
 virtual/
 
 *.tar.gz

@@ -142,11 +142,12 @@ def weights_normal_init(model, dev=0.01):
       elif isinstance(m, nn.Linear):
         m.weight.data.normal_(0.0, dev)
 
-def main():
+def train():
   BATCH_SIZE = 1024
   LR = 0.001
   MAX_EPOCHS = 100
   RANDOM_SEED = 786
+  MODEL_NAME_PREFIX = "classifier-sar"
 
   torch.manual_seed(RANDOM_SEED)
   torch.cuda.manual_seed(RANDOM_SEED)
@@ -233,6 +234,9 @@ def main():
 
     stats.append(stat)
 
+    model_name = "save/{}_{}.pth".format(MODEL_NAME_PREFIX, epoch+1)
+    torch.save(model.state_dict(), model_name)
+
     t1 = time.time()
 
     print("Epoch: {} Avg. Epoch Loss: {} Train Acc: {} Val Acc: {} Time taken: {} secs".format(
@@ -257,6 +261,28 @@ def main():
   plt.xlabel("Epochs")
   plt.ylabel("Training Accuracy")
   plt.show()
+
+def test():
+
+  model_name = "save/{}_{}.pth".format("classifier-sar", 83)
+  model = Classifier()
+  model.load_state_dict(torch.load(model_name))
+  model.eval()
+
+  test_c = QuestionDataset("../QA/labelled-predictions-validation_50.json")
+  test_dataloader = DataLoader(test_c, batch_size=1024, shuffle=False)
+
+  predicted_label = []
+  for _, batch in enumerate(test_dataloader):
+    inputs, _ = batch
+    with torch.no_grad(): predicted_label += model.predict(model.forward(inputs)).tolist()
+
+  with open("classifier-labelled-predictions-validation_50.json", 'w') as outfile: 
+    json.dump(predicted_label, outfile, indent=4)
+
+def main():
+  train()
+  # test()
 
 if __name__ == '__main__':
   main()
