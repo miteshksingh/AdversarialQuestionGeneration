@@ -147,7 +147,7 @@ def train():
   LR = 0.001
   MAX_EPOCHS = 100
   RANDOM_SEED = 786
-  MODEL_NAME_PREFIX = "classifier-sar"
+  MODEL_NAME_PREFIX = "classifier-bert"
 
   torch.manual_seed(RANDOM_SEED)
   torch.cuda.manual_seed(RANDOM_SEED)
@@ -155,8 +155,8 @@ def train():
   random.seed(RANDOM_SEED)
 
   t0 = time.time()
-  train_c = QuestionDataset("../QA/labelled-predictions-Stanford-Attentive-Reader-SQuAD-v1.1-train-multitask.json")
-  val_c = QuestionDataset("../QA/labelled-predictions-Stanford-Attentive-Reader-SQuAD-v1.1-dev-multitask.json", balance_classes=False)
+  train_c = QuestionDataset("../QA/labelled-bert_train_predictions.json")
+  val_c = QuestionDataset("../QA/labelled-bert_dev_predictions.json", balance_classes=False)
   t1 = time.time()
 
   print("Data loaded. Train Size: {} Val Size: {} Time taken: {} secs".format(
@@ -242,7 +242,7 @@ def train():
     print("Epoch: {} Avg. Epoch Loss: {} Train Acc: {} Val Acc: {} Time taken: {} secs".format(
         epoch+1, stat["loss"], stat["train_acc"], stat["val_acc"], round((t1-t0))))
 
-  with open("stats-Stanford-Attentive-Reader-SQuAD.json", 'w') as outfile: json.dump(stats, outfile, indent=4, sort_keys=True)
+  with open("stats-bert-SQuAD.json", 'w') as outfile: json.dump(stats, outfile, indent=4, sort_keys=True)
 
   # Plotting Epoch Loss
   plt.plot([e["loss"] for e in stats])
@@ -264,7 +264,7 @@ def train():
 
 def test():
 
-  model_name = "save/{}_{}.pth".format("classifier-sar", 83)
+  model_name = "save/{}_{}.pth".format("classifier-bert", 65)
   model = Classifier()
   model.load_state_dict(torch.load(model_name))
   model.eval()
@@ -277,7 +277,7 @@ def test():
     inputs, _ = batch
     with torch.no_grad(): predicted_label += model.predict(model.forward(inputs)).tolist()
 
-  with open("classifier-labelled-predictions-generated_ques_3670.json", 'w') as outfile: 
+  with open("classifier-bert-labelled-predictions-generated_ques_3670.json", 'w') as outfile: 
     json.dump(predicted_label, outfile, indent=4)
 
 def main():
