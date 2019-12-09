@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from models import InferSent
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score, precision_score, recall_score
 from torch.utils.data import Dataset, DataLoader
 
 class QuestionDataset(Dataset):
@@ -146,7 +146,7 @@ def main():
   BATCH_SIZE = 1024
   LR = 0.001
   MAX_EPOCHS = 100
-  RANDOM_SEED = 600
+  RANDOM_SEED = 786
 
   torch.manual_seed(RANDOM_SEED)
   torch.cuda.manual_seed(RANDOM_SEED)
@@ -227,6 +227,9 @@ def main():
 
     stat["val_acc"] = accuracy_score(all_y_true, all_y_pred)
     stat["confusion_matrix"] = confusion_matrix(all_y_true, all_y_pred).tolist()
+    stat["precision"] = precision_score(all_y_true, all_y_pred)
+    stat["recall"] = recall_score(all_y_true, all_y_pred)
+    stat["f1"] = f1_score(all_y_true, all_y_pred)
 
     stats.append(stat)
 
