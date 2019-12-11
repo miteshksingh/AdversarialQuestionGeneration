@@ -264,12 +264,12 @@ def train():
 
 def test():
 
-  model_name = "save/{}_{}.pth".format("classifier-bert", 65)
+  model_name = "save/{}_{}.pth".format("classifier-sar", 83)
   model = Classifier()
   model.load_state_dict(torch.load(model_name))
   model.eval()
 
-  test_c = QuestionDataset("../QA/labelled-predictions-generated_ques_3670.json")
+  test_c = QuestionDataset("../QA/labelled-predictions-unilm-languagechecker-4930pqa.json")
   test_dataloader = DataLoader(test_c, batch_size=1024, shuffle=False)
 
   predicted_label = []
@@ -277,7 +277,7 @@ def test():
     inputs, _ = batch
     with torch.no_grad(): predicted_label += model.predict(model.forward(inputs)).tolist()
 
-  with open("classifier-bert-labelled-predictions-generated_ques_3670.json", 'w') as outfile: 
+  with open("classifier-sar-labelled-predictions-unilm-languagechecker-4930pqa.json", 'w') as outfile: 
     json.dump(predicted_label, outfile, indent=4)
 
 def main():
