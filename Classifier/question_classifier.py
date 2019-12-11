@@ -269,7 +269,7 @@ def test():
   model.load_state_dict(torch.load(model_name))
   model.eval()
 
-  test_c = QuestionDataset("../QA/labelled-predictions-unilm-languagechecker-4930pqa.json")
+  test_c = QuestionDataset("../QA/labelled-predictions-unilm-languagechecker-4930pqa.json", balance_classes=False)
   test_dataloader = DataLoader(test_c, batch_size=1024, shuffle=False)
 
   predicted_label = []
