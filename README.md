@@ -22,6 +22,8 @@ We uploaded our augmented dataset on Codalab and ran the Logistic Regression QA 
 
 ## Adversarial QA Dataset Generation Framework
 
+![Adversarial_QA Dataset_Generation_Framework](charts/Adversarial_QA_Dataset_Generation_Framework.jpg)
+
 ### Adversarial Classifier
 
 We coded the binary classifier from scratch. We used the infersent embeddings.
