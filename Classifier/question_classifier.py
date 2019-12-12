@@ -143,7 +143,7 @@ def weights_normal_init(model, dev=0.01):
         m.weight.data.normal_(0.0, dev)
 
 def train():
-  BATCH_SIZE = 1024
+  BATCH_SIZE = 512
   LR = 0.001
   MAX_EPOCHS = 100
   RANDOM_SEED = 786
@@ -281,8 +281,8 @@ def test():
     json.dump(predicted_label, outfile, indent=4)
 
 def main():
-  # train()
-  test()
+  train()
+  # test()
 
 if __name__ == '__main__':
   main()
