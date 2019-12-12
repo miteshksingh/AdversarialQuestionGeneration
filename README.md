@@ -20,3 +20,9 @@ Please see the readme in language-check folder.
 4. QA Baseline - https://worksheets.codalab.org/worksheets/0xd53d03a48ef64b329c16b9baf0f99b0c/
 We uploaded our augmented dataset on Codalab and ran the Logistic Regression QA baseline over it.
 
+## Adversarial QA Dataset Generation Framework
+
+### Adversarial Classifier
+
+We coded the binary classifier from scratch. We used the infersent embeddings.
+![QA Dataset_Generation_Framework](charts/classifier.png)
