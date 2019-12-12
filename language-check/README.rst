@@ -2,6 +2,7 @@ language-check
 ==============
 
 Python wrapper for LanguageTool.
+Copied from - https://github.com/myint/language-check
 
 .. image:: https://travis-ci.org/myint/language-check.svg?branch=master
     :target: https://travis-ci.org/myint/language-check
