@@ -98,10 +98,10 @@ class Classifier(nn.Module):
       self.d1 = nn.Dropout(0.5)
 
       # This applies Linear transformation to input data. 
-      self.fc1 = nn.Linear(4096, 16)
+      self.fc1 = nn.Linear(4096, 32)
 
       # This applies linear transformation to produce output data
-      self.fc2 = nn.Linear(16, 2)
+      self.fc2 = nn.Linear(32, 2)
         
     # This must be implemented
     def forward(self, x):
@@ -155,8 +155,8 @@ def train():
   random.seed(RANDOM_SEED)
 
   t0 = time.time()
-  train_c = QuestionDataset("../QA/labelled-bert_train_predictions.json")
-  val_c = QuestionDataset("../QA/labelled-bert_dev_predictions.json", balance_classes=False)
+  train_c = QuestionDataset("../QA/labelled-predictions-Stanford-Attentive-Reader-SQuAD-v1.1-train-single.json")
+  val_c = QuestionDataset("../QA/labelled-predictions-Stanford-Attentive-Reader-SQuAD-v1.1-dev-single.json", balance_classes=False)
   t1 = time.time()
 
   print("Data loaded. Train Size: {} Val Size: {} Time taken: {} secs".format(
@@ -242,7 +242,7 @@ def train():
     print("Epoch: {} Avg. Epoch Loss: {} Train Acc: {} Val Acc: {} Time taken: {} secs".format(
         epoch+1, stat["loss"], stat["train_acc"], stat["val_acc"], round((t1-t0))))
 
-  with open("stats-bert-SQuAD.json", 'w') as outfile: json.dump(stats, outfile, indent=4, sort_keys=True)
+  with open("stats-Stanford-Attentive-Reader-SQuAD.json", 'w') as outfile: json.dump(stats, outfile, indent=4, sort_keys=True)
 
   # Plotting Epoch Loss
   plt.plot([e["loss"] for e in stats])
