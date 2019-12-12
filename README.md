@@ -22,7 +22,10 @@ We uploaded our augmented dataset on Codalab and ran the Logistic Regression QA 
 
 ## Adversarial QA Dataset Generation Framework
 
+### Overview
 ![Adversarial_Framework_Overview](charts/Adversarial_Framework_Overview.jpg)
+
+### Detail
 ![Adversarial_QA Dataset_Generation_Framework](charts/Adversarial_QA_Dataset_Generation_Framework.jpg)
 
 ### Adversarial Classifier
