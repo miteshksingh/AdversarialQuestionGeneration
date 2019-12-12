@@ -29,14 +29,6 @@ python setup.py install --user
 2. cd code/unilm/src
 3. ./run_finetuned_custom.sh
 
-## Named Entity Recognition
-
-### Set Up
-1. Install Allennlp
-conda install -c conda-forge allennlp
-
-2. Download NER pre-trained model from : https://s3-us-west-2.amazonaws.com/allennlp/models/ner-model-2018.12.18.tar.gz
-
 ## Binary Classifier
 
 ### Set Up
