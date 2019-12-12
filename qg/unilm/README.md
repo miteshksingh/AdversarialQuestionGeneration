@@ -1,3 +1,30 @@
-## Setup
+# Answer Aware Question Generation Model
 
-https://github.com/microsoft/unilm
+## Setup
+Follow the steps mentioned at: https://github.com/microsoft/unilm
+
+In order to run inference on CPU, please read these steps before installing UniLM.
+
+* Do not install nvidia/apex module
+* Do not use -fp16 -amp flags in the python decode_seq2seq command options
+https://github.com/microsoft/unilm/issues/23
+
+* Filename: code/unilm/src/run_finetuned_custom.sh
+-python2 qg/eval_on_unilm_tokenized_ref.py --out_file qg/output/qg.test.output.txt
+-python2 qg/eval.py --out_file qg/output/qg.test.output.txt
+
+* Filename: code/unilm/src/pytorch_pretrained_bert/__init__.py
+-from .tokenization import BertTokenizer, BasicTokenizer, WordpieceTokenizer
++from .tokenization import BertTokenizer, BasicTokenizer, WordpieceTokenizer, WhitespaceTokenizer
+
+* python setup.py install --user
+
+* Filename: code/unilm/src/biunilm/seq2seq_decoder.py
+-model_recover = torch.load(model_recover_path)
++model_recover = torch.load(model_recover_path, map_location=torch.device('cpu'))
+
+## Running Steps:
+
+* conda activate unilm
+* cd code/unilm/src
+* ./run_finetuned_custom.sh

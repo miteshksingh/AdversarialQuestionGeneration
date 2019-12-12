@@ -1,7 +1,14 @@
+# Named Entity Recognition
+
 ## Model
 
 We provide scripts to run both Allen NLP NER and spaCy NER model.
 We found spaCy to be fast and more accurate.
+
+## Allen NLP Set Up
+
+* Install Allennlp: conda install -c conda-forge allennlp
+* Download NER pre-trained model from : https://s3-us-west-2.amazonaws.com/allennlp/models/ner-model-2018.12.18.tar.gz
 
 ## spaCy setup
 
