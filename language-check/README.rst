@@ -20,8 +20,8 @@ This works with LanguageTool 3.2 version. Extract language-check/language-check/
 
 Usage:
 
-check_language.py - This file takes a SQuAD format file and removes all the topic entries which have at least 1 error.
->>> python check_language.py squad_format_file.json output_filename.json
+- check_language.py - This file takes a SQuAD format file and removes all the topic entries which have at least 1 error.
+- python check_language.py squad_format_file.json output_filename.json
 
 Example usage
 -------------
