@@ -1,6 +1,8 @@
 # Adversarial Question Generation
 Generate questions on which a given QA system will fail.
 
+Please read our paper present in this repo.
+
 ## QA Dataset Generation Framework
 
 ![QA Dataset_Generation_Framework](charts/QA_Dataset_Generation_Framework.jpg)
